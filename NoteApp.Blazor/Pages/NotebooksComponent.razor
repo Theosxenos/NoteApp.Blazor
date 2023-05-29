@@ -1,0 +1,44 @@
+﻿<div class="navbar">
+	<div class="container-fluid">
+		<a href="#" class="navbar-brand">Notebooks (@notebooksAmount) </a>
+		@*<a class="nav-link flex-end fs-2" role="button" @onclick="addNoteBook">+</a>*@
+		<button class="btn" @onclick="addNoteBook">+</button>
+	</div>
+</div>
+<div class="list-group">
+	@foreach (var notebook in notebooks)
+	{
+		<a href="#" class="list-group-item list-group-item-action @(notebook.IsActive ? "active" : "")" @onclick="() => selectNotebook(notebook.NotebookId)">@notebook.Name</a>
+	}
+</div>
+
+@code {
+	List<Notebook> notebooks = new();
+
+	int notebooksAmount => notebooks.Count;
+
+	int i = 1;
+
+	void addNoteBook()
+	{
+		notebooks.Add(new Notebook()
+		{
+			NotebookId = i - 1,
+			Name = $"Notebook {i}",
+		});
+		i++;
+	}
+
+	void selectNotebook(int id)
+	{
+		var active = notebooks.Where(n => n.IsActive == true).SingleOrDefault();
+
+		if(active is not null)
+		{
+			active.IsActive = false;
+		}
+
+		var selected = notebooks.Where(n => n.NotebookId == id ).Single();
+		selected.IsActive = true;
+	}
+}
