@@ -1,5 +1,28 @@
-﻿<h3>Notes</h3>
+﻿<nav class="navbar">
+	<div class="container-fluid">
+		<a href="#" class="navbar-brand">Notes</a>
+		<button class="btn btn-outline-primary">New note</button>
+		@* <button class="btn btn-outline-secondary">New to-do</button> *@
+		<div class="d-flex" role="search">
+			<input type="text" class="form-control form-control-sm me-2">
+			<button class="btn btn-outline-success">Search</button>
+		</div>
+	</div>
+</nav>
+<div class="list-group">
+	@foreach (var note in Notes)
+	{
+		<a href="#" class="list-group-item">@note.Name</a>
+	}
+</div>
+
 
 @code {
-
+	[Parameter]
+	public List<Note> Notes { get; set; } = new()
+	{
+		new Note(){Name = "Note 1"},
+		new Note(){Name = "Note 2"},
+		new Note(){Name = "Note 3"},
+	};
 }
