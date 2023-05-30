@@ -1,7 +1,9 @@
-﻿<nav class="navbar">
+﻿@inject NotebookService nbSvc;
+
+<nav class="navbar">
 	<div class="container-fluid">
 		<a href="#" class="navbar-brand">Notes</a>
-		<button class="btn btn-outline-primary">New note</button>
+		<button class="btn btn-outline-primary" @onclick="addNotes">New note</button>
 		@* <button class="btn btn-outline-secondary">New to-do</button> *@
 		<div class="d-flex" role="search">
 			<input type="text" class="form-control form-control-sm me-2">
@@ -10,9 +12,16 @@
 	</div>
 </nav>
 <div class="list-group">
-	@foreach (var note in Notes)
+	@if(nbSvc.ActiveNotebook is not null)
 	{
-		<a href="#" class="list-group-item">@note.Name</a>
+		@foreach (var note in nbSvc.ActiveNotebook.Notes)
+		{
+			<a href="#" class="list-group-item">@note.Name</a>
+		}
+	} 
+	else
+	{
+		<p>Waiting...</p>
 	}
 </div>
 
@@ -25,4 +34,9 @@
 		new Note(){Name = "Note 2"},
 		new Note(){Name = "Note 3"},
 	};
+
+	void addNotes()
+	{
+		nbSvc.ActiveNotebook.Notes.AddRange(Notes);
+	}
 }
