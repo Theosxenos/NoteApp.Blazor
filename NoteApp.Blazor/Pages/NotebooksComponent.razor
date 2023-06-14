@@ -1,10 +1,11 @@
 ﻿@inject NotebookService nbSvc
+@inject IJSRuntime JSRuntime
 
 <div class="navbar">
 	<div class="container-fluid">
 		<a href="#" class="navbar-brand">Notebooks (@notebooksAmount) </a>
 		@*<a class="nav-link flex-end fs-2" role="button" @onclick="addNoteBook">+</a>*@
-		<button class="btn" type="button" @onclick="addNoteBook">+</button>
+		<button class="btn" type="button" @onclick="ShowDialog">+</button>
 	</div>
 </div>
 <div class="list-group">
@@ -14,16 +15,33 @@
 	}
 </div>
 
+<dialog @ref="dialogElement">
+	<div class="container form">
+		<div class="row">
+			<div class="col">
+				<label for="name" class="form-label">Name</label>
+				<input id="name" type="text" class="form-control" @bind-value="@notebookName">
+			</div>
+		</div>
+		<div class="row">
+			<div class="col btn-group">
+				<button class="btn btn-primary" @onclick="AddNoteBook">Ok</button>
+				<button class="btn btn-secondary" @onclick="CloseDialog">Cancel</button>
+			</div>
+		</div>
+	</div>
+</dialog>
+
 @code {
 	List<Notebook> notebooks = new();
 	int notebooksAmount => notebooks.Count;
 	bool showDialog = false;
+	ElementReference dialogElement;
+	string notebookName = string.Empty;
 
-	//int i = 1;
-
-	void addNoteBook()
+	void AddNoteBook()
 	{
-		
+
 	}
 
 	protected override async Task OnInitializedAsync()
@@ -35,13 +53,25 @@
 	{
 		var active = notebooks.Where(n => n.IsActive == true).SingleOrDefault();
 
-		if(active is not null)
+		if (active is not null)
 		{
 			active.IsActive = false;
 		}
 
-		var selected = notebooks.Where(n => n.NotebookId == id ).Single();
+		var selected = notebooks.Where(n => n.NotebookId == id).Single();
 		selected.IsActive = true;
 		nbSvc.ActiveNotebook = selected;
+	}
+
+	async void ShowDialog()
+	{
+		showDialog = true;
+		await JSRuntime.InvokeVoidAsync("showDialog", dialogElement);
+	}
+
+	async void CloseDialog()
+	{
+		showDialog = false;
+		await JSRuntime.InvokeVoidAsync("closeDialog", dialogElement);
 	}
 }
