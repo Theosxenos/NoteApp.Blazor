@@ -1,15 +1,13 @@
 ﻿@page "/"
 
-<div class="container-fluid min-vh-100 d-flex flex-column">
-    <div class="row max-vh-100">
-        <div class="col-2 bg-primary bg-opacity-25">
-            <NotebooksComponent />
-        </div>
-        <div class="col-3 bg-secondary bg-opacity-25">
-            <NotesComponent />
-        </div>
-        <div class="col bg-success bg-opacity-25">
-            <NoteEditorComponent />
-        </div>
+<div class="notebooklayout">
+    <div class="col" style="background:#baba">
+        <NotebooksComponent />
+    </div>
+    <div class="col" style="background: #bada55">
+        <NotesComponent />
+    </div>
+    <div class="col" style="background: #99999940">
+        <NoteEditorComponent />
     </div>
 </div>
