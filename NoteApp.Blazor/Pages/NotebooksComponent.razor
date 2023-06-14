@@ -20,7 +20,7 @@
 		<div class="row">
 			<div class="col">
 				<label for="name" class="form-label">Name</label>
-				<input id="name" type="text" class="form-control" @bind-value="@notebookName">
+				<input id="name" type="text" class="form-control" @bind-value="@notebookName" placeholder="Name...">
 			</div>
 		</div>
 		<div class="row">
@@ -41,7 +41,10 @@
 
 	void AddNoteBook()
 	{
+		nbSvc.AddNewNotebook(notebookName);
+		notebookName = string.Empty;
 
+		CloseDialog();
 	}
 
 	protected override async Task OnInitializedAsync()
