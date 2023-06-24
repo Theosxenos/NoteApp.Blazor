@@ -1,9 +1,10 @@
-﻿@inject NotebookService nbSvc;
+﻿@inject NotebookService NbSvc;
+@inject NotesService NtSvc;
 
 <nav class="navbar">
 	<div class="container-fluid">
 		<a href="#" class="navbar-brand">Notes</a>
-		<button class="btn btn-outline-primary" @onclick="addNotes">New note</button>
+		<button class="btn btn-outline-primary" @onclick="NewNote">New note</button>
 		@* <button class="btn btn-outline-secondary">New to-do</button> *@
 		<div class="d-flex" role="search">
 			<input type="text" class="form-control form-control-sm me-2">
@@ -12,11 +13,11 @@
 	</div>
 </nav>
 <div class="list-group">
-	@if(nbSvc.ActiveNotebook is not null)
+	@if(NbSvc.ActiveNotebook is not null)
 	{
-		@foreach (var note in nbSvc.ActiveNotebook.Notes)
+		@foreach (var note in NtSvc.GetNotesFromNotebook(NbSvc.ActiveNotebook.NotebookId))
 		{
-			<a href="#" class="list-group-item">@note.Name</a>
+			<a href="#" class="list-group-item @(note.NoteId == NtSvc.ActiveNote.NoteId ? "active" : "")" @onclick="() => OnNoteClick(note)">@note.Name</a>
 		}
 	} 
 	else
@@ -27,16 +28,44 @@
 
 
 @code {
-	[Parameter]
-	public List<Note> Notes { get; set; } = new()
-	{
-		new Note(){Name = "Note 1"},
-		new Note(){Name = "Note 2"},
-		new Note(){Name = "Note 3"},
-	};
+	//TODO For testing purposes only
+	int lastid = -1;
 
-	void addNotes()
+	List<Note> Notes { get; set; } = new();
+	
+	protected override void OnInitialized()
 	{
-		nbSvc.ActiveNotebook.Notes.AddRange(Notes);
+		NbSvc.ActiveNotebookChanged += OnActiveChanged;
+		// NtSvc.ActiveNoteChanged += async delegate { await InvokeAsync(StateHasChanged); };
 	}
+
+	private async void OnActiveChanged(object? sender, EventArgs e)
+	{
+		var notes = NtSvc.GetNotesFromNotebook(NbSvc.ActiveNotebook.NotebookId);
+		
+		Notes.Clear();
+		Notes.AddRange(notes);
+		
+		await InvokeAsync(StateHasChanged);
+	}
+
+	void NewNote()
+	{
+		var note = new Note()
+		{
+			NoteId = ++lastid,
+			Name = $"Test {new Random().Next()}",
+			NotebookId = NbSvc.ActiveNotebook.NotebookId
+		};
+		NtSvc.CreateNote(note);
+	}
+
+	private void OnNoteClick(Note note)
+	{
+		if(NtSvc.ActiveNote == note) return;
+		
+		NtSvc.ActiveNote = note;
+		// OnActiveChanged(null, EventArgs.Empty);
+	}
+
 }

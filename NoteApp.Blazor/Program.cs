@@ -7,6 +7,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
 builder.Services.AddSingleton<NotebookService>();
+builder.Services.AddSingleton<NotesService>();
 
 var app = builder.Build();
 
