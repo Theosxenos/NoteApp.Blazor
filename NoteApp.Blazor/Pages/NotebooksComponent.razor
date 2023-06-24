@@ -1,17 +1,17 @@
-﻿@inject NotebookService nbSvc
-@inject IJSRuntime JSRuntime
+﻿@inject NotebookService NbSvc
+@inject IJSRuntime JsRuntime
 
 <div class="navbar">
 	<div class="container-fluid">
-		<a href="#" class="navbar-brand">Notebooks (@notebooksAmount) </a>
+		<a href="#" class="navbar-brand">Notebooks (@NbSvc.NotebookAmount) </a>
 		@*<a class="nav-link flex-end fs-2" role="button" @onclick="addNoteBook">+</a>*@
 		<button class="btn" type="button" @onclick="ShowDialog">+</button>
 	</div>
 </div>
 <div class="list-group">
-	@foreach (var notebook in notebooks)
+	@foreach (var notebook in NbSvc.GetNotebooks())
 	{
-		<a href="#" class="list-group-item list-group-item-action @(notebook.IsActive ? "active" : "")" @onclick="() => selectNotebook(notebook.NotebookId)">@notebook.Name</a>
+		<a href="#" class="list-group-item list-group-item-action @(notebook == NbSvc.ActiveNotebook ? "active" : "")" @onclick="() => SelectNotebook(notebook)">@notebook.Name</a>
 	}
 </div>
 
@@ -33,48 +33,34 @@
 </dialog>
 
 @code {
-	List<Notebook> notebooks = new();
-	int notebooksAmount => notebooks.Count;
 	bool showDialog = false;
 	ElementReference dialogElement;
 	string notebookName = string.Empty;
 
 	void AddNoteBook()
 	{
-		nbSvc.AddNewNotebook(notebookName);
+		NbSvc.AddNewNotebook(notebookName);
 		notebookName = string.Empty;
 
 		CloseDialog();
 	}
-
-	protected override async Task OnInitializedAsync()
+	
+	void SelectNotebook(Notebook notebook)
 	{
-		notebooks = await nbSvc.GetNotebooksAsync();
-	}
-
-	void selectNotebook(int id)
-	{
-		var active = notebooks.Where(n => n.IsActive == true).SingleOrDefault();
-
-		if (active is not null)
-		{
-			active.IsActive = false;
-		}
-
-		var selected = notebooks.Where(n => n.NotebookId == id).Single();
-		selected.IsActive = true;
-		nbSvc.ActiveNotebook = selected;
+		if(NbSvc.ActiveNotebook == notebook) return;
+		
+		NbSvc.ActiveNotebook = notebook;
 	}
 
 	async void ShowDialog()
 	{
 		showDialog = true;
-		await JSRuntime.InvokeVoidAsync("showDialog", dialogElement);
+		await JsRuntime.InvokeVoidAsync("showDialog", dialogElement);
 	}
 
 	async void CloseDialog()
 	{
 		showDialog = false;
-		await JSRuntime.InvokeVoidAsync("closeDialog", dialogElement);
+		await JsRuntime.InvokeVoidAsync("closeDialog", dialogElement);
 	}
 }

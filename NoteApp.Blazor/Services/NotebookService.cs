@@ -1,11 +1,27 @@
-﻿namespace NoteApp.Blazor.Services;
+﻿using NoteApp.Blazor.Models;
+
+namespace NoteApp.Blazor.Services;
 
 public class NotebookService
 {
-	private List<Notebook> Notebooks { get; set; } = new List<Notebook>();
+	private List<Notebook> Notebooks { get; set; } = new();
 	private int lastNotebookId = -1;
+	private Notebook activeNotebook;
 
-	public Notebook ActiveNotebook { get; set; }
+	public EventHandler ActiveNotebookChanged;
+	public Notebook ActiveNotebook
+	{
+		get => activeNotebook;
+		set
+		{
+			if (activeNotebook == value) return;
+			
+			activeNotebook = value;
+			ActiveNotebookChanged?.Invoke(this, EventArgs.Empty);
+		}
+	}
+
+	public int NotebookAmount => Notebooks.Count;
 
 	public NotebookService()
 	{
@@ -15,12 +31,11 @@ public class NotebookService
 		}
 
 		ActiveNotebook = Notebooks[0];
-		Notebooks[0].IsActive = true;
 	}
 
-	public Task<List<Notebook>> GetNotebooksAsync()
+	public List<Notebook> GetNotebooks()
 	{
-		return Task.FromResult(Notebooks);
+		return Notebooks;
 	}
 
 	public void AddNewNotebook(string name)
