@@ -4,7 +4,7 @@ namespace NoteApp.Blazor.Services;
 
 public class NotesService
 {
-    private List<Note> Notes { get; set; } = new();
+    private List<Note> notes = new();
     private Note activeNote;
 
     public Note ActiveNote
@@ -13,33 +13,36 @@ public class NotesService
         set
         {
             if (activeNote == value) return;
+
+            if (activeNote != null) activeNote.PropertyChanged -= ActiveNoteOnPropertyChanged;
             
             activeNote = value;
-            ActiveNoteChanged?.Invoke(this, EventArgs.Empty);
+            activeNote.PropertyChanged += ActiveNoteOnPropertyChanged;
+            ActiveNoteChanged?.Invoke();
         }
     }
 
-    public EventHandler ActiveNoteChanged;
+    public event Action ActiveNoteChanged;
+    public event Action NotePropertiesChanged;
     
-    public List<Note> GetNotes() => Notes;
+    public List<Note> GetNotes() => notes;
     public List<Note> GetNotesFromNotebook(int notebookid)
     {
-        var notesFromNotebook = Notes.Where(n => n.NotebookId == notebookid).ToList();
+        var filterednotes = notes.Where(n => n.NotebookId == notebookid).ToList();
 
-        if (notesFromNotebook.Count > 0)
+        if ((ActiveNote is null || ActiveNote.NotebookId != notebookid) && filterednotes.Count > 0)
         {
-            ActiveNote = notesFromNotebook[0];
-            ActiveNoteChanged?.Invoke(this, EventArgs.Empty);
+            ActiveNote = filterednotes[0];
         }
         
-        return notesFromNotebook;
+        return filterednotes;
     }
 
-    public Note GetNote(int id) => Notes.SingleOrDefault(n => n.NoteId == id);
+    public Note GetNote(int id) => notes.SingleOrDefault(n => n.NoteId == id);
 
-    public List<Note> SearchNote(string searchterm) => Notes.Where(n => n.Name.Contains(searchterm) || n.Content.Contains(searchterm)).ToList();
+    public List<Note> SearchNote(string searchterm) => notes.Where(n => n.Name.Contains(searchterm) || n.Content.Contains(searchterm)).ToList();
 
-    public void CreateNote(Note note) => Notes.Add(note);
+    public void CreateNote(Note note) => notes.Add(note);
 
     public void UpdateNote(Note updatednote)
     {
@@ -49,5 +52,15 @@ public class NotesService
         note.NotebookId = updatednote.NotebookId;
     }
 
-    public void DeleteNote(Note deletednote) => Notes.Remove(deletednote);
+    public void DeleteNote(Note deletednote) => notes.Remove(deletednote);
+
+    public void SetActiveNote(int? noteid = null)
+    {
+        ActiveNote = notes.SingleOrDefault(n => n.NoteId == noteid);
+    }
+    
+    private void ActiveNoteOnPropertyChanged(object? sender, EventArgs e)
+    {
+        NotePropertiesChanged?.Invoke();
+    }
 }

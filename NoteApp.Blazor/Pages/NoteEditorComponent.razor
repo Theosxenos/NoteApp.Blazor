@@ -1,5 +1,30 @@
-﻿<h3>NoteEditor</h3>
+﻿@inject NotesService NtSvc
+
+@if (NtSvc.ActiveNote is not null)
+{
+    <div class="nav">
+        <input class="form-control" type="text" @oninput="(e)=> { NoteName = e.Value.ToString(); }" value="@NoteName" />
+    </div>
+}
+
 
 @code {
+    private string test;
+    //TODO Update note
+    private string NoteName
+    {
+        get => NtSvc.ActiveNote.Name;
+        set => NtSvc.ActiveNote.Name = value;
+    }
+
+    protected override void OnInitialized()
+    {
+        NtSvc.ActiveNoteChanged += ActiveNoteChanged;
+    }
+
+    private async void ActiveNoteChanged()
+    {
+        await InvokeAsync(StateHasChanged);
+    }
 
 }

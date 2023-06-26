@@ -8,7 +8,7 @@ public class NotebookService
 	private int lastNotebookId = -1;
 	private Notebook activeNotebook;
 
-	public EventHandler ActiveNotebookChanged;
+	public Action ActiveNotebookChanged;
 	public Notebook ActiveNotebook
 	{
 		get => activeNotebook;
@@ -17,7 +17,7 @@ public class NotebookService
 			if (activeNotebook == value) return;
 			
 			activeNotebook = value;
-			ActiveNotebookChanged?.Invoke(this, EventArgs.Empty);
+			ActiveNotebookChanged?.Invoke();
 		}
 	}
 

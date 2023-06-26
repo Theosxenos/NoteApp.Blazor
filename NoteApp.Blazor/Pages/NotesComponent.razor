@@ -31,23 +31,22 @@
 	//TODO For testing purposes only
 	int lastid = -1;
 
-	List<Note> Notes { get; set; } = new();
-	
 	protected override void OnInitialized()
 	{
-		NbSvc.ActiveNotebookChanged += OnActiveChanged;
-		// NtSvc.ActiveNoteChanged += async delegate { await InvokeAsync(StateHasChanged); };
+		NbSvc.ActiveNotebookChanged += InvokeStateHasChanged;
+		NtSvc.NotePropertiesChanged += InvokeStateHasChanged;;
 	}
 
-	private async void OnActiveChanged(object? sender, EventArgs e)
+	private async void InvokeStateHasChanged()
 	{
-		var notes = NtSvc.GetNotesFromNotebook(NbSvc.ActiveNotebook.NotebookId);
-		
-		Notes.Clear();
-		Notes.AddRange(notes);
-		
 		await InvokeAsync(StateHasChanged);
 	}
+
+	// private async void OnActiveNotebookChanged(object? sender, EventArgs e)
+	// {
+	// 	await InvokeAsync(StateHasChanged);
+	// 	// NtSvc.SetActiveNote();
+	// }
 
 	void NewNote()
 	{
@@ -62,9 +61,7 @@
 
 	private void OnNoteClick(Note note)
 	{
-		if(NtSvc.ActiveNote == note) return;
-		
-		NtSvc.ActiveNote = note;
+		NtSvc.SetActiveNote(note.NoteId);
 		// OnActiveChanged(null, EventArgs.Empty);
 	}
 
