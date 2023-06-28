@@ -3,3 +3,8 @@
     grid-template-columns: 1fr 1.5fr 3fr;
     min-height: 100vh;
 }
+
+.noteeditor {
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
