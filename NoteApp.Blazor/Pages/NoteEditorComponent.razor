@@ -5,6 +5,7 @@
     <div class="nav">
         <input class="form-control" type="text" @oninput="(e)=> { NoteName = e.Value.ToString(); }" value="@NoteName" />
     </div>
+    <textarea class="form-control" @bind="@NtSvc.ActiveNote.Content" />
 }
 
 
@@ -18,10 +19,11 @@
 
     protected override void OnInitialized()
     {
-        NtSvc.ActiveNoteChanged += ActiveNoteChanged;
+        NtSvc.ActiveNoteChanged += OnNotifyPropertyChanged;
+        NtSvc.NotifyPropertyChanged += OnNotifyPropertyChanged;
     }
 
-    private async void ActiveNoteChanged()
+    private async void OnNotifyPropertyChanged()
     {
         await InvokeAsync(StateHasChanged);
     }
