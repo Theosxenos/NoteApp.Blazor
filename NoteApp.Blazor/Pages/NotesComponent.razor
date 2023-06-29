@@ -15,7 +15,7 @@
 <div class="list-group">
 	@if(NbSvc.ActiveNotebook is not null)
 	{
-		@foreach (var note in NtSvc.GetNotesFromNotebook(NbSvc.ActiveNotebook.NotebookId))
+		@foreach (var note in notes)
 		{
 			<a href="#" class="list-group-item @(note.NoteId == NtSvc.ActiveNote.NoteId ? "active" : "")" @onclick="() => OnNoteClick(note)">@note.Name</a>
 		}
@@ -31,23 +31,25 @@
 	//TODO For testing purposes only
 	int lastid = -1;
 	string SearchTerm { get; set; }
+	List<Note> notes { get; set; } = new();
 
 	protected override void OnInitialized()
 	{
-		NbSvc.ActiveNotebookChanged += InvokeStateHasChanged;
-		NtSvc.NotePropertiesChanged += InvokeStateHasChanged;;
+		NbSvc.ActiveNotebookChanged += HandleStateChange;
+		NtSvc.ActiveNoteChanged += OnActiveNoteChanged;
+		NtSvc.NotifyPropertyChanged += HandleStateChange;
 	}
 
-	private async void InvokeStateHasChanged()
+	private async void HandleStateChange()
 	{
+		notes = NtSvc.GetNotesFromNotebook(NbSvc.ActiveNotebook.NotebookId);
 		await InvokeAsync(StateHasChanged);
 	}
 
-	// private async void OnActiveNotebookChanged(object? sender, EventArgs e)
-	// {
-	// 	await InvokeAsync(StateHasChanged);
-	// 	// NtSvc.SetActiveNote();
-	// }
+	private async void OnActiveNoteChanged()
+	{
+		await InvokeAsync(StateHasChanged);
+	}
 
 	void NewNote()
 	{
@@ -64,11 +66,12 @@
 	private void OnNoteClick(Note note)
 	{
 		NtSvc.SetActiveNote(note.NoteId);
-		// OnActiveChanged(null, EventArgs.Empty);
 	}
-	private void SearchNotes()
+	private async void SearchNotes()
 	{
-		NtSvc.SearchNote(SearchTerm);
+		notes = NtSvc.SearchNote(SearchTerm);
+		await InvokeAsync(StateHasChanged);
+
 	}
 
 }

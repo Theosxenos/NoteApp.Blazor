@@ -1,4 +1,5 @@
 using NoteApp.Blazor.Models;
+using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 
 namespace NoteApp.Blazor.Services;
@@ -6,8 +7,9 @@ namespace NoteApp.Blazor.Services;
 public class NotesService
 {
 	private List<Note> notes = new();
-	private Note activeNote;
+	private List<Note> Notes => notes;
 
+	private Note activeNote;
 	public Note ActiveNote
 	{
 		get => activeNote;
@@ -24,12 +26,11 @@ public class NotesService
 	}
 
 	public event Action ActiveNoteChanged;
-	public event Action NotePropertiesChanged;
+	public event Action NotifyPropertyChanged;
 
-	public List<Note> GetNotes() => notes;
 	public List<Note> GetNotesFromNotebook(int notebookid)
 	{
-		var filterednotes = notes.FindAll(n => n.NotebookId == notebookid);
+		var filterednotes = Notes.FindAll(n => n.NotebookId == notebookid);
 
 		if ((ActiveNote is null || ActiveNote.NotebookId != notebookid) && filterednotes.Count > 0)
 		{
@@ -39,14 +40,14 @@ public class NotesService
 		return filterednotes;
 	}
 
-	public Note GetNote(int id) => notes.SingleOrDefault(n => n.NoteId == id);
+	public Note GetNote(int id) => Notes.SingleOrDefault(n => n.NoteId == id);
 
 	public List<Note> SearchNote(string searchterm = "")
 	{
 		searchterm = searchterm.Trim();
 		if (string.IsNullOrEmpty(searchterm))
 		{
-			return GetNotes();
+			return Notes;
 		}
 
 		List<Note> filteredNotes;
@@ -55,14 +56,23 @@ public class NotesService
 		if (haswildcard)
 		{
 			var pattern = searchterm.Replace("*", ".?");
-			filteredNotes = notes.FindAll(n => Regex.IsMatch(n.Name, pattern) || Regex.IsMatch(n.Content, pattern));
+			filteredNotes = Notes.FindAll(n => Regex.IsMatch(n.Name, pattern) || Regex.IsMatch(n.Content, pattern));
+		} else
+		{
+			filteredNotes = Notes.Where(n => n.Name.Contains(searchterm) || n.Content.Contains(searchterm)).ToList();
 		}
 
-		filteredNotes = notes.Where(n => n.Name.Contains(searchterm) || n.Content.Contains(searchterm)).ToList();
+		if(filteredNotes.Count > 0)
+			ActiveNote = filteredNotes[0];
+
 		return filteredNotes;
 	}
 
-	public void CreateNote(Note note) => notes.Add(note);
+	public void CreateNote(Note note)
+	{
+		notes.Add(note);
+		NotifyPropertyChanged?.Invoke();
+	}
 
 	public void UpdateNote(Note updatednote)
 	{
@@ -81,6 +91,6 @@ public class NotesService
 
 	private void ActiveNoteOnPropertyChanged(object? sender, EventArgs e)
 	{
-		NotePropertiesChanged?.Invoke();
+		NotifyPropertyChanged?.Invoke();
 	}
 }

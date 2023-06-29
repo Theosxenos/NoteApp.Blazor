@@ -20,10 +20,11 @@
 
     protected override void OnInitialized()
     {
-        NtSvc.ActiveNoteChanged += ActiveNoteChanged;
+        NtSvc.ActiveNoteChanged += OnNotifyPropertyChanged;
+        NtSvc.NotifyPropertyChanged += OnNotifyPropertyChanged;
     }
 
-    private async void ActiveNoteChanged()
+    private async void OnNotifyPropertyChanged()
     {
         await InvokeAsync(StateHasChanged);
     }
