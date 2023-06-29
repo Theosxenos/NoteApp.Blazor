@@ -7,8 +7,8 @@
 		<button class="btn btn-outline-primary" @onclick="NewNote">New note</button>
 		@* <button class="btn btn-outline-secondary">New to-do</button> *@
 		<div class="d-flex" role="search">
-			<input type="text" class="form-control form-control-sm me-2">
-			<button class="btn btn-outline-success">Search</button>
+			<input type="text" class="form-control form-control-sm me-2" @bind="@SearchTerm">
+			<button class="btn btn-outline-success" @onclick="SearchNotes">Search</button>
 		</div>
 	</div>
 </nav>
@@ -30,6 +30,7 @@
 @code {
 	//TODO For testing purposes only
 	int lastid = -1;
+	string SearchTerm { get; set; }
 
 	protected override void OnInitialized()
 	{
@@ -54,6 +55,7 @@
 		{
 			NoteId = ++lastid,
 			Name = $"Test {new Random().Next()}",
+			Content = $"Test content {new Random().Next()}",
 			NotebookId = NbSvc.ActiveNotebook.NotebookId
 		};
 		NtSvc.CreateNote(note);
@@ -63,6 +65,10 @@
 	{
 		NtSvc.SetActiveNote(note.NoteId);
 		// OnActiveChanged(null, EventArgs.Empty);
+	}
+	private void SearchNotes()
+	{
+		NtSvc.SearchNote(SearchTerm);
 	}
 
 }
