@@ -1,32 +1,34 @@
 ﻿@inject NotesService NtSvc
 
-@if (NtSvc.ActiveNote is not null)
+@if (ActiveNote is not null)
 {
     <div class="nav">
         <input class="form-control" type="text" @oninput="(e)=> { NoteName = e.Value.ToString(); }" value="@NoteName" />
     </div>
-    <textarea class="form-control" @bind="@NtSvc.ActiveNote.Content" />
+    <textarea class="form-control" @bind="@ActiveNote.Content" />
 }
 
 
 @code {
-    private string test;
+    [Parameter]
+    public Note? ActiveNote { get; set; }
+
     //TODO Update note
     private string NoteName
     {
-        get => NtSvc.ActiveNote.Name;
-        set => NtSvc.ActiveNote.Name = value;
+        get => ActiveNote.Name;
+        set => ActiveNote.Name = value;
     }
 
     protected override void OnInitialized()
     {
-        NtSvc.ActiveNoteChanged += OnNotifyPropertyChanged;
-        NtSvc.NotifyPropertyChanged += OnNotifyPropertyChanged;
+        NtSvc.ActiveNoteChanged += StateHasChanged;
+        NtSvc.NotifyPropertyChanged += StateHasChanged;
     }
 
     private async void OnNotifyPropertyChanged()
     {
         await InvokeAsync(StateHasChanged);
     }
-
+    // TODO ondestroy unsub
 }

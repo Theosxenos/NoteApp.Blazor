@@ -32,6 +32,8 @@
 	int lastid = -1;
 	string SearchTerm { get; set; }
 	List<Note> notes { get; set; } = new();
+	[Parameter]
+	public EventCallback<Note> OnNoteSelected { get; set; }
 
 	protected override void OnInitialized()
 	{
@@ -43,6 +45,7 @@
 	private async void HandleStateChange()
 	{
 		notes = NtSvc.GetNotesFromNotebook(NbSvc.ActiveNotebook.NotebookId);
+		SearchTerm = string.Empty;
 		await InvokeAsync(StateHasChanged);
 	}
 
@@ -63,10 +66,11 @@
 		NtSvc.CreateNote(note);
 	}
 
-	private void OnNoteClick(Note note)
+	private async Task OnNoteClick(Note note)
 	{
-		NtSvc.SetActiveNote(note.NoteId);
+		await OnNoteSelected.InvokeAsync(note);
 	}
+
 	private async void SearchNotes()
 	{
 		notes = NtSvc.SearchNote(SearchTerm);

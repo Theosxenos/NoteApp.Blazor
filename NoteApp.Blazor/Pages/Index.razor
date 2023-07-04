@@ -5,9 +5,23 @@
         <NotebooksComponent />
     </div>
     <div class="col" style="background: #bada55">
-        <NotesComponent />
+        <NotesComponent OnNoteSelected="OnNoteSelected" />
     </div>
     <div class="col noteeditor" style="background: #99999940">
-        <NoteEditorComponent />
+        <NoteEditorComponent ActiveNote="@ActiveNote" />
     </div>
 </div>
+
+@code {
+    private Note? ActiveNote { get; set; }
+
+    private void OnNoteSelected(Note note)
+    {
+        ActiveNote = note;
+    }
+
+    private void SetNoteNull()
+    {
+        ActiveNote = null;
+    }
+}

@@ -17,11 +17,11 @@ public class NotesService
 		{
 			if (activeNote == value) return;
 
-			if (activeNote != null) activeNote.PropertyChanged -= ActiveNoteOnPropertyChanged;
+			//if (activeNote != null) activeNote.PropertyChanged -= ActiveNoteOnPropertyChanged;
 
 			activeNote = value;
-			activeNote.PropertyChanged += ActiveNoteOnPropertyChanged;
-			ActiveNoteChanged?.Invoke();
+			//activeNote.PropertyChanged += ActiveNoteOnPropertyChanged;
+			//ActiveNoteChanged?.Invoke();
 		}
 	}
 
@@ -71,7 +71,7 @@ public class NotesService
 	public void CreateNote(Note note)
 	{
 		notes.Add(note);
-		NotifyPropertyChanged?.Invoke();
+		//NotifyPropertyChanged?.Invoke();
 	}
 
 	public void UpdateNote(Note updatednote)
@@ -80,6 +80,8 @@ public class NotesService
 		note.Name = updatednote.Name;
 		note.Content = updatednote.Content;
 		note.NotebookId = updatednote.NotebookId;
+
+		NotifyPropertyChanged?.Invoke();
 	}
 
 	public void DeleteNote(Note deletednote) => notes.Remove(deletednote);
